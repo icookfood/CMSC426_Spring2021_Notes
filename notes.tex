@@ -2,8 +2,15 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath} 
 \usepackage[english]{babel}
-
 \setlength{\parindent}{2.5em}
+\usepackage{color}   %May be necessary if you want to color links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true, %set true if you want colored links
+    linktoc=all,     %set to all if you want both sections and subsections linked
+    linkcolor=blue,  %choose some color if you want links to stand out
+}
+
 
 \title{CMSC426 Notes}
 \author{Jeremy Jubilee: Contact at jerrj33@gmail.com for revisions}
@@ -19,45 +26,65 @@
 \section{Math Primer}
 
 \subsection{Linear Algebra: Common Terms and Definitions}
-Why is Linear Algebra Important?
+Why is Linear Algebra Important to Computer Vision?
 \begin{itemize}
     \item We associate coordinates to points in an image (2D) or scene (3D)
     \item Use these coordinates to perform geometrical transformations, different coordinate systems, etc.
     \item We represent images as \textbf{matrices of numbers}
 \end{itemize}
-Matrices: We use matrices to represent images and kernels. Multiplication and addition between matrices is very important. 
+\textbf{Matrices} are used represent images and kernels. Many image processing operations involve matrix math.  
 \begin{itemize}
-    \item A 2-D Matrix, $A_{nxm}$, has $n$ rows and $m$ columns. To consider an element in $A$, we say $a_{ij}$, where location is $i$th row from top, $j$th row from left.
-    \item Consider two matrices $A,B$
-    \begin{itemize}
-        \item For summation, $C_{n\times m} = A_{n\times m} + B_{n\times m}$. Same dimensionality required. We have $c_{ij} = a_{ij} + b_{ij}$.
-        \item For multiplication, we have $C_{n\times p} = A_{n\times m} + B_{m\times p}$. $A$ must have same number of columns as $B$ has rows. $c_{ij} = \sum^m_{k=1}a_{ik}b_{kj}$. In other words, in the corresponding row of $A$ and column of $B$, get the sum of the products of each corresponding cell.
-        \item Transposing is flipping a matrix. $C_{m\times n} = A^T_{n\times m}$, and $c_{ij} = a_{ji}$. $(A+B)^T = A^T + B^T$. $(AB)^T = (B^TA^T)$.
-        \item Determinants and Inverses are important, but tough to do by hand.
-    \end{itemize}
+    \item Consider a 2-D Matrix $A$ with elements in $A$ denoted as $a_{ij}$.
+    $$\underbrace{\begin{bmatrix}
+    a_{11} & a_{21} & \cdots & a_{n1} \\ 
+    a_{12} & a_{22} & \cdots & a_{n2} \\ 
+    \vdots & \vdots & \ddots & \vdots \\ 
+    a_{1m} & a_{2m} & \cdots & a_{nm}
+    \end{bmatrix}}_{A\text{ is an }n\times m \text{ matrix}}$$
+    
+    \item \textbf{Summation}: To have $A+B = C$ be a valid summation, they must have the \textbf{same dimensionality}.
+    $$\underbrace{\begin{bmatrix}
+    a_{11}+b_{11} & a_{21}+b_{21} & \cdots & a_{n1}+b_{n1} \\ 
+    a_{12}+b_{12} & a_{22}+b_{22} & \cdots & a_{n2}+b_{n2} \\ 
+    \vdots & \vdots & \ddots & \vdots \\ 
+    a_{1m}+b_{1m} & a_{2m}+b_{2m} & \cdots & a_{nm}+b_{nm}
+    \end{bmatrix}}_{A+B} = \underbrace{\begin{bmatrix}
+    c_{11} & c_{21} & \cdots & c_{n1} \\ 
+    c_{12} & c_{22} & \cdots & c_{n2} \\ 
+    \vdots & \vdots & \ddots & \vdots \\ 
+    c_{1m} & c_{2m} & \cdots & c_{nm}
+    \end{bmatrix}}_C$$
+    
+    
+
+    \item For multiplication, we have $C_{n\times p} = A_{n\times m} + B_{m\times p}$. $A$ must have same number of columns as $B$ has rows. $c_{ij} = \sum^m_{k=1}a_{ik}b_{kj}$. In other words, in the corresponding row of $A$ and column of $B$, get the sum of the products of each corresponding cell.
+    \item Transposing is flipping a matrix. $C_{m\times n} = A^T_{n\times m}$, and $c_{ij} = a_{ji}$. $(A+B)^T = A^T + B^T$. $(AB)^T = (B^TA^T)$.
+    
 \end{itemize}
-Vectors: We use vectors often to represent features, using these vectors in more linear algebra math for classification and regression. 
+\textbf{Vectors} are often used to represent features of data or images. Consider two vectors of same dimensionality, $v, w$
 \begin{itemize}
-    \item A list of numbers, we can also consider them as columns in a matrix, or reshape a matrix to form a vector. Very useful...
-    \item Consider two vectors $v,w$
-    \begin{itemize}
-        \item For summation, $u=v+w$. Same dimensionality required. Any corresponding field in $u$ is the sum of that field in $v,w$. Good for normalizing vectors by mean centering around 0
-        \item Can multiply every field in $v$ with a scalar, $a$. Good for normalizing vectors by making variance 1.
-        \item Magnitude of vector is just distance formula of all fields... get square of all fields, sum, then get root. Denoted as $||v||$
-        \item Dot product is like multiplying matrices, imagine each "row" and "column" as vectors, then get the sum of the multiples of each one. If dot product is 0, vectors are perpendicular. Helps us find angle between vectors. $v \cdot w = ||v||||w||cos(\theta)$
-        \item Cross product gives us another vector. The resultant vector is perpendicular to both v,w. 
-    \end{itemize}
+
+    \item \textbf{Summation}: Good for normalizing vectors by mean centering around 0.
+    $$\begin{bmatrix}
+    v_1\\ \vdots \\ v_n
+    \end{bmatrix} + \begin{bmatrix}
+    w_1\\ \vdots \\ w_n
+    \end{bmatrix} = \begin{bmatrix}
+    v_1 + w_1\\ \vdots \\ v_n + w_n
+    \end{bmatrix} = \begin{bmatrix}
+    u_1\\ \vdots \\ u_n
+    \end{bmatrix}$$
+    \item Can multiply every field in $v$ with a scalar, $a$. Good for normalizing vectors by making variance 1.
+    \item Magnitude of vector is just distance formula of all fields... get square of all fields, sum, then get root. Denoted as $||v||$
+    \item Dot product is like multiplying matrices, imagine each "row" and "column" as vectors, then get the sum of the multiples of each one. If dot product is 0, vectors are perpendicular. Helps us find angle between vectors. $v \cdot w = ||v||||w||cos(\theta)$
+    \item Cross product gives us another vector. The resultant vector is perpendicular to both v,w. 
 \end{itemize}
-Norms: Different ways to calculate distances between vectors. Used for classification.
+Norms: Different ways to calculate distances between vectors. Used for classification. Useful for measuring how accurate a prediction is by distance to the target.
 \begin{itemize}
-    \item Used to get "distances" or errors. Useful for measuring how accurate a prediction is.
-    \item Consider vectors $x$
-    \begin{itemize}
-        \item \textbf{L2 Norm:} $||x||_2 = \sqrt{\partial^n_{i=1}x_i^2}$. Most common, euclidean distance.
-        \item \textbf{L1 Norm:} $||x||_1 = \sqrt{\partial^n_{i=1}|x_i|}$. Sum of absolute value of errors. "Manhattan distance".
-        \item \textbf{Infinity Norm:} $||x||_{inf} = max(|x_i|)$. Get the worst error, and report that. 
-        \item \textbf{Generalized P-Norm} $||x||_p = (\partial^n_{i=1}x_i^p)^{1/p}$.
-    \end{itemize}
+    \item \textbf{L2 Norm:} $||x||_2 = \sqrt{\partial^n_{i=1}x_i^2}$. Most common, euclidean distance.
+    \item \textbf{L1 Norm:} $||x||_1 = \sqrt{\partial^n_{i=1}|x_i|}$. Sum of absolute value of errors. "Manhattan distance".
+    \item \textbf{Infinity Norm:} $||x||_{inf} = max(|x_i|)$. Get the worst error, and report that. 
+    \item \textbf{Generalized P-Norm} $||x||_p = (\partial^n_{i=1}x_i^p)^{1/p}$.
 \end{itemize}
 \subsection{Least Squares Optimization}
 
@@ -143,8 +170,8 @@ What if our data doesn't fit a line?  We may have some output points that scale 
     \item So why not do a really high degree? \textbf{Overfitting.} We would fit too much to the noise in the data rather than the general trends themselves. 
     \item High degree linear regressions tend to have incredibly high $\theta$ values, as they are "bending" the line in strange ways to fit to all the data points.
 \end{itemize}
-
 This is where \textbf{Regularization} or Ridge Regression comes in. We want to make sure that the accuracy we gain by increasing the degree isn't offset by the crazy $\theta$ parameters we get as a result. 
+
 \begin{itemize}
 
     \item When we overfit, we notice that the weights become massive, to account for some of the noise that may be present in the data. So, we take the L2 Norm of the resulting $\theta$ parameters themselves.
@@ -245,44 +272,50 @@ As an aside, we can test for overfitting by separating our data into test and tr
 \end{itemize}
 This information allows us to go into singular value decomposition.
 \begin{itemize}
-    \item Singluar Value Decomposition
+    \item Every matrix $A$ can be "decomposed" into $A = U\Sigma V^T$
     \begin{itemize}
-        \item Every matrix $A$ can be rewritten as $A = U\Sigma V^T$, where $U,V$ are orthonormal matrices, and $\Sigma$ is a diagonal matrix. Picture this as $U$ being a rotation, then $\Sigma$ being a scaling, then $V^T$ as being another rotation. 
-        \item Given $A$ as an $n \times m$ matrix, $U$ is $n \times n$, $\Sigma$ is $n \times m$, and $V$ is $m \times m$. $A_{nm} = U_{nn}\Sigma_{nm}V^T_{mm}$
         \item Columns of $U$ are orthonormal eigenvectors of $A\cdot A^T$
         \item Columns of $V$ are orthonormal eigenvectors of $A^T\cdot A$
         \item $\Sigma$ is a diagonal matrix containing the \textbf{square roots} of the eigenvalues from $U$ or $V$ in descending order (\textit{singular values}).
-        \item Since $AA^T$ is always a symmetric matrix, we can apply the spectral theorem to get this by hand! Then we can easily get the values.
-        \item Why is this useful? Assuming $A = U\Sigma V^T$ is rank $r$, it may be a lot of calculations. We can reduce this and create an approximation matrix $A' = U\Sigma' V^T$ where it is rank $r-k$, and we change $\Sigma \rightarrow \Sigma'$ by removing the $k$ least significant(absolute value) eigenvalues. This lets us clear out a lot of time and space. This will translate nicely into the next segment: PCA.
     \end{itemize}
 \end{itemize}
+    $$\underbrace{\begin{bmatrix}
+    a_{11} & \cdots & a_{n1} \\ 
+    \vdots & \ddots & \vdots \\ 
+    a_{1m} & \cdots & a_{nm}
+    \end{bmatrix}}_{A = n\times m} =\underbrace{\begin{bmatrix}
+    u_{11} &\cdots & u_{n1} \\
+    \vdots & \ddots & \vdots \\ 
+    u_{1n} & \cdots & u_{nn}
+    \end{bmatrix}}_{U = n\times n} \underbrace{\begin{bmatrix}
+    \lambda_1 & \cdots & 0 \\ 
+    \vdots  & \ddots & \vdots \\ 
+    0  & \cdots & ?
+    \end{bmatrix}}_{\Sigma = n\times m} \underbrace{\begin{bmatrix}
+    v_{11} &\cdots & v_{m1} \\
+    \vdots & \ddots & \vdots \\ 
+    v_{1m} & \cdots & v_{mm}
+    \end{bmatrix}^T}_{V = m\times m}  $$
+\begin{itemize}
+    \item Since $AA^T$ is always a symmetric matrix, we can apply the spectral theorem to get this by hand! Then we can easily get the values.
+\end{itemize}
+Why is this representation useful to us? 
+\begin{itemize}
+    \item Gives a uniform way to get the eigenpairs of a matrix with spectral theorem.
+    \item The eigenvectors are a basis for the matrix, allowing us to rerepresent the matrix in terms of its eigenvectors
+    \item Corresponding eigenvalues represent the "impact" each eigenvector has on the shape of the matrix
+    \item This allows us to find the most important eigenvectors, and create an approximated version of the matrix using those as the basis vectors.
+    \item We do this by taking the top vectors with the highest eigenvalues, and then project the original data onto just these eigenvectors.
+\end{itemize}
+This lets us clear out a lot of time and space, translating nicely into the next segment: PCA.
 
 \subsection{Principal Component Analysis}
-
-\newline
-\newline
+First, let's talk about some background statistical stuff between two distributions, $x$ and $y$. Let's imagine these as points on a scatter plot. 
 \begin{itemize}
-    \item Background Stuff...
-    \begin{itemize}
-        \item \textbf{Mean:} $\bar{x} = \frac{1}{n-1}\sum^n_{i=1}x_i$. Note that we divide by $n-1$ since we are assuming a sample, not the population. 
-        \item \textbf{Variance:} $\sigma^2 = \frac{1}{n-1}\sum^n_{i=1}(x_i-\bar{x})^2 = \frac{1}{n-1}\sum^n_{i=1}(x_i-\bar{x})(x_i-\bar{x})$
-        \item \textbf{Covariance:} $Cov(X,Y) = \frac{1}{n-1}\sum^n_{i=1}(x_i-\bar{x})(y_i-\bar{y})$. Measures the relationship between two variables (dimensions).
-        \item \textbf{Covariance Matrices:} For an $n$-dimensional data set, we have an $n\times n$ covariance matrix. 
-        \item \textbf{Matrix Rank:} Number of linearly independent column or rows in matrix. For transformation matrices, rank tells us dimensions of output. Full rank matrices are $n\times n$ matrices with row-rank = col-rank = $n$.
-        \item \textbf{Vector Spaces:} Generalization of Cartesian Plane. We denote vector spaces as $\mathbf{R}^d$, where elements are $[x_1,x_2,\cdots,x_d]$. A set of all $n\times m$ matrices can be denoted as vector space $\mathbf{R}^{n\times m}$.
-        \item \textbf{Basis Vectors:} Consider vector space $\mathbf{R}^d$. All vectors can be represented as a linear combination of basis vectors, $e_i$, where\\ $e_1 = [1,0,\cdots,0], e_2 = [0,1,\cdots,0], \cdots, e_d = [0,0,\cdots,1]$.\\
-        For $v = [x_1,x_2,\cdots,x_d]$, we can also say that $v = \sum^d_{i=1}x_ie_i$\\
-        For a set of vectors $U$, we say that a vector $v$ is in the span of $U$ if it can be represented as a linear combination of vectors in $U$.
-        \item \textbf{Linear Transformations:} Functions $f:U\rightarrow V$ are linear transformations if $f(\alpha u_1 + \beta u_2) = f(\alpha u_1) + f(\beta u_2)$ for all $u_1,u_2 \in U$. We can represent these as matrix multiplications!
-        \item \textbf{Eigen Vectors and Values:} an \textit{eigenvector} $x$ of a linear transformation matrix $A$ is a non-zero vector such that when we apply $A$ to it, it does not change its direction, but rather scales it by a value $\lambda$, its corresponding $eigenvalue$. $Ax = \lambda x$. \\
-        These can \textbf{ONLY} be found for square matrices, and not every square matrix has them. IF they do however, the have $n$ of them ($n\times n$ matrix). \\
-        Scaling eigen vector does not affect eigenvalue, since we aren't changing magnitude. Therefore, we normalize them to length 1.
-        \\
-        All eigenvectors are perpendicular/orthogonal, meaning we can express data in terms of eigenvectors (as basis vectors!).\\
-        The \textit{trace} of a matrix is the sum of its eigenvalues. The determinant is equal to the product of its eigenvalues. The rank is equivalent to the number of non-zero eigenvalues. 
-        \item \textbf{Spectral Theorem:} Consider \textit{symmetric} $n \times n$ matrix $A$. \textit{Symmetric} implies that $A = A^T$. Then, there exist real numbers (eigenvalues) $\lamba_1, \cdots, \lamba_n$ and corresponding, orthogonal, non-zero real vectors (eigenvectors) $\phi_1,\cdots,\phi_n$ such that for all $i$, $A\phi_i = \lambda_i\phi_i$. This implies that $A\phi - \lambda I\phi = 0 \rightarrow (A - \lambda I)\phi = 0$. Note: When doing calculations for this, don't forget to normalize our eigenvectors. 
-        \item Note that vertices being \textbf{orthonormal} means that they are both \textbf{orthogonal}, meaning they are perpendicular/independent, and \textbf{normalized}, meaning they are all of unit (1) length.
-    \end{itemize}
+    \item \textbf{Mean:} $\bar{x} = \frac{1}{n-1}\sum^n_{i=1}x_i$. Note that we divide by $n-1$ since we are assuming a sample, not the population. 
+    \item \textbf{Variance:} $\sigma^2 = \frac{1}{n-1}\sum^n_{i=1}(x_i-\bar{x})^2 = \frac{1}{n-1}\sum^n_{i=1}(x_i-\bar{x})(x_i-\bar{x})$
+    \item \textbf{Covariance:} $Cov(X,Y) = \frac{1}{n-1}\sum^n_{i=1}(x_i-\bar{x})(y_i-\bar{y})$. Measures the relationship between two variables (dimensions).
+    \item \textbf{Covariance Matrices:} For an $n$-dimensional data set, we have an $n\times n$ covariance matrix. 
 \end{itemize}
 What is \textbf{Principal Component Analysis (PCA)}? When we work with data that has higher dimensions, it may be difficult to perceive it in a Cartesian plane. Higher dimensional data also introduces much more computational complexity. More features will scale for a very long time with more data, and this can become untenable in the long run when we perform many operations on high dimensional data. Our data collection can become more accurate, with more and more features, but the runtime can suck. Any features that are less relevant still take the same amount of time as other features. Some features may scale directly or inversely with each other (think elevation & temperature), rendering calculating both of them slightly obsolete. 
 
@@ -532,7 +565,7 @@ Edge detectors usually fail to find corners, since they act as maxima and evade 
     \item The change is significant. If the change is everywhere, but small, we're likely simply in a constant patch.
 \end{itemize}
 
-\subsection{Mathematical Exploration of Corners}
+\subsection{Harris Corner Detector}
 \begin{itemize}
     \item Given a point in an image $I$, we want to find out if it is a corner. To do this, we look at a window around this image patch, calling it $W$. 
     \item We want to shift this window around. This is because if the window is in a "flat" region, there will be no significant change in all directions, and for an edge, there will be no change along the direction of the edge. However, for a corner, there will be significant change in multiple directions! We denote this shifting as $\Delta x, \Delta y$.
@@ -568,8 +601,7 @@ Edge detectors usually fail to find corners, since they act as maxima and evade 
     $$R = det(m) - k(trace(M))^2$$
     When $R$ is high, that means that the eigenvalues are both significant and similar to each other. This helps us in determining the likelihood of a point being a corner!
 \end{itemize}
-\subsection{Harris Corner Detection Algorithm}
-Let's sum all this math up into an algoritm. 
+Let's sum all this math up into an algoritm known as the \textbf{Harris Corner Detector}. 
 \begin{enumerate}
     \item \textbf{Prerequisites:} Convert the image to gray scale and apply a Gaussian blur to smooth out any noise.
     \item \textbf{Get Partial Derivatives:} Apply the \textit{sobel operator} to find the partial derivatives for the images.
@@ -582,17 +614,8 @@ Let's sum all this math up into an algoritm.
         \end{bmatrix}$
     \end{itemize}
     \item \textbf{Compute Detector Responses:} Recall the score function, $R = det(m) - k(trace(M))^2$. Compute this at each pixel.
-    \item \textbf{Find Maxima of Responses:} Get the local maxima of $R$ in a neighborhood around it. Make sure that it is also above some minimal threshold. 
+    \item \textbf{Find Maxima of Responses:} Get the local maxima of $R$ in a neighborhood around it. Make sure that it is also above some minimal threshold. We can use an algorithm called \textbf{Adaptive Non-Maximal} suppresion for this to also make sure our corners are well distributed across the image. 
 \end{enumerate}
-\section{Image Matching and Stitching}
-When we want to match images, we usually match certain \textbf{features} in the image. When we write detectors for these features, we want to make sure that they are robust to certain changes that can happen in images. These features should be 
-\begin{itemize}
-    \item Invariant to affine changes
-    \item Invariant to translation
-    \item Invariant to rotation
-    \item Invariant to scale change
-\end{itemize}
-Corners help with translation and rotation, but corners are \textbf{NOT} invariant to scale change. When we zoom in or out of an image, the feature descriptors of corners may not be able to match each other. This is where the \textbf{SIFT} algorithm comes into play.
 \subsection{Scale Invariant Feature Transform}
 The \textbf{SIFT} algorithm finds invariant local features in images using Laplacian of Gaussians for scale invariance. \textit{Sharp local intensity changes} like this are good for identifying relative scales of regions. SIFT has 3 main sections when being used. Let's go through each of them!
 \begin{enumerate}
@@ -664,6 +687,85 @@ The \textbf{SIFT} algorithm finds invariant local features in images using Lapla
     \item \textbf{Matching:} This is the stage where we match keypoints between images to determine if the images are similar. Usually, we use some nearest neighbor stuff. We would find the nearest neighbor, then reject the keypoint if the distance to the nearest neighbor is within a threshold of some ratio to its distance to its next nearest neighbor (indicates ambiguity).
 \end{enumerate}
 The main things to take away from \textbf{SIFT} is how it works, how each of the components of the stages work, and why they work.
+\subsection{Histogram of Gradients}
+The \textbf{Histogram of Gradients (HoG)} is a another technique to generate feature descriptors. This technique was designed and primarily used for pedestrian detection. Instead of focusing on keypoints, HoG focuses on regions of interest. We look at global features with a sliding window at multiple sized images. Here's a step-by-step look at the algorithm.
+\begin{enumerate}
+    \item \textbf{Normalize and Gamma Color}: This is a preprocessing step, and although it has been found that this is not necessary for HoG, we should still think about it as a way to normalize all images prior to running any feature detection algorithms on them. \textit{Gamma Correction} is a way to evenly distribute the intensities along an image. We do the following: 
+    $$I[x,y] = CI[x,y]^k$$
+    Where $C$ is a constant and $k$ is the normalization exponent. We set it to $\frac{1}{2}$ to make sure intense parts arent overly intense relative to the image. After this, we \textit{normalize} the image to convert the numbers to floating point numbers between 0 and 1.  
+    \item \textbf{Calculate Gradients}: Like many of the operations before, we calculate gradient at a point using the following formula:
+    $$\nabla f(x,y) = \begin{bmatrix}
+    g_x\\g_y
+    \end{bmatrix} = \begin{bmatrix}
+    \frac{\partial f}{\partial x}\\\frac{\partial f}{\partial y}
+    \end{bmatrix} = \lim_{d\rightarrow 0}\frac{f(x+d)- f(x-d)}{2d}$$
+    Like the Harris corner detector, we use partials, meaning we want to calculate the vertical and horizontal edges. We could use \textit{sobel operators}, but instead use 1-D filter masks: $$\begin{bmatrix}
+    -1 & 0 & 1
+    \end{bmatrix}, \begin{bmatrix}
+    -1 \\ 0 \\ 1
+    \end{bmatrix}$$
+    \item \textbf{Calculate Orientations and Magnitudes}: Like many of the operations before, we calculate the magnitude ($g$) and orientation ($\theta$) of the gradients using the partial derivatives at a point. 
+    $$g = \sqrt{g_x^2 + g_y^2}, \theta = \frac{180}{\pi}(\tan_2^{-1}\bigg(\frac{g_y}{g_x}\bigg)\text{mod }\pi)$$
+    Note that instead of letting the orientation be the full $360$ degrees, the $\mod{\pi}$ limits this to angles between $0$ and $180$ degrees. This gives us \textit{unsigned} gradients, which were tested to work better.
+    \item \textbf{Create Patches and Blocks}: Remember that HoG is different in the sense that we do not find key points, rather we create features for an area. \begin{enumerate}
+        \item \textbf{Create a patch of size $64 \times 128$}. Since HoG was made to be operated on human subjects, this patch size captures a standing pedestrian at the right scale. This will ultimately be the space that the feature vector reports on.
+        \item \textbf{Divide into Blocks of $8 \times 8$-sized cells}. These are the cells that will make up the sections of the histograms we make. 
+    \end{enumerate}
+    \item \textbf{Create the block-cells from the blocks}. We slide a $2 \times 2$ cell sized window over our entire patch. Each one of these windows will return  a histogram of the magnitudes of gradient orientations.
+    \item \textbf{Quantize the gradient orientations of the block into a 9-binned histogram.} We choose 9 bins because they seem to work best.
+    \begin{itemize}
+        \item \textit{Quantizing} the magnitudes would mean that if the gradient was in an angle in the middle of two bin thresholds, we would split its magnitude proportionally into each of those bins based on distance. 
+        \item We also \textit{normalize} each block. 
+    \end{itemize}
+    \item \textbf{Concatenate the histograms into a feature vector.} Recall that we have the $64 \times 128$-sized patch. Dividing this into $8\times 8$ cells gives us a $8\times 16$-cell-sized patch. Then, with a $2\times2$-cell window sliding over the patch, we report $15 * 7$ windows. Each of these windows has $2*2 = 4$ cells, and the histograms of each cell have $9$ directions. This gives us a feature vector of size:
+    $$15 * 7 * 4 * 9 = 3780$$
+\end{enumerate}
+The HoG is nice because it is robust to scaling, translation, and illumination. However, it not robust to orientation. It has coarse spatial sampling due to the large patches it takes. It has fine orientation sampling due to the many histograms. It also is invariant to illumination, due to the normalization of the patch as a whole. All of this makes it particularly well suited to detecting humans in images, specifically pedestrians. The way that HoG would form features over the whole image is by sliding the patch window over the image as a whole, meaning that instead of keypoints, we look at whole image patches.
+\subsection{Summary}
+\begin{itemize}
+    \item \textbf{Keypoints} of images are useful for identifying characteristics about them. We want them to be robust to possible changes in the image.
+    \item \textbf{Invariance} is when a characteristic of an image would not significantly change with certain things.
+    \item \textbf{Corners} are good candidate for keypoints for an image since they are invariant to translation, rotation, and illumination.
+    \begin{itemize}
+        \item They can be defined as the points where two edges meet.
+        \item Edge detectors have trouble differentiating corners from flat patches.
+        \item We can look at the covariance of gradients to determine corner. 
+        \item Two large eigenvalues of the covariance matrix likely indicates a corner. 
+    \end{itemize}
+    \item \textbf{Harris Corner Detector} is an algorithm to detect corners. 
+    \begin{enumerate}
+        \item \textbf{Preprocess with Grayscale and Normalization}
+        \item \textbf{Generate Gradient Images}
+        \item \textbf{Construct Gaussian Windows}
+        \item \textbf{Compute Detector Scores}
+        \item \textbf{Adaptive Non-Maximal Suppresion}
+    \end{enumerate}
+    \item \textbf{Scale Invariant Feature Transform (SIFT)} is another algorithm used to find features. SIFT features are robust to uniform scaling, orientation, and illumination. 
+    \begin{enumerate}
+        \item \textbf{Find Keypoints} using DoG pyramids. Localize them using Taylor expansions. Discard weak keypoints and edges.
+        \item \textbf{Generate Descriptors} by finding the orientation of the keypoint. Generate a orientation histogram for the area around the keypoint, and rotate relative to the orientation of the keypoint. 
+        \item \textbf{Feature Match} using various algorithms.
+    \end{enumerate}
+    \item \textbf{Histogram of Gradients} is a method that looks at patches rather than keypoints. It is invariant to geometric and illumination transforms, with the exception of orientation. It is tailored towards pedestrian detection. 
+    \begin{enumerate}
+        \item \textbf{Preprocess} the image by gamma correcting, then normalizing it.
+        \item \textbf{Calculate Gradient Images} using \textit{Sobel Operators}.
+        \item \textbf{Calculate Magnitudes and Orientations} of patches.
+        \item \textbf{Take Patches and Blocks} from the image. Standard is patch size of $64 \times 128$, cells of $8 \times 8$, and blocks of $2 \times 2$ cells.
+        \item \textbf{Generate Oriented Histograms} for each block.
+        \item \textbf{Concatenate Histograms} into a feature vector. This ends up being $15 * 7 * 4 * 9 = 3780$ in the standard case.
+    \end{enumerate}
+\end{itemize}
+\section{Image Matching and Stitching}
+When we want to match images, we usually match certain \textbf{features} in the image. When we write detectors for these features, we want to make sure that they are robust to certain changes that can happen in images. These features should be 
+\begin{itemize}
+    \item Invariant to affine changes
+    \item Invariant to translation
+    \item Invariant to rotation
+    \item Invariant to scale change
+\end{itemize}
+Corners help with translation and rotation, but corners are \textbf{NOT} invariant to scale change. When we zoom in or out of an image, the feature descriptors of corners may not be able to match each other. This is where the \textbf{SIFT} algorithm comes into play.
+
 \subsection{Cameras and Projective Geometry}
 When we have keypoints, something we can do other than matching is transforming. Say that we want to move these keypoints or rotate them or rescale them to stich images together, to normalize images, etc. How do we do this? \textbf{Geometric Transformations}. We do these to translate things from 3 Dimensions to 2 Dimensions as well!
 \begin{itemize}
@@ -861,18 +963,14 @@ Solving for homographies
     \item Since $h$ can only be computed up to scale, we can impose a constraint for some $h_{nn} \in \vec{h}$ for computational speed. However, do not set $h_{22} = h_9 = 0$, as results for this close to 0 fails.
 \end{itemize}
 \subsection{Random Sample Consensus}
-Motivation for RANSAC:
+Motivation for RANSAC How do we match keypoints between images \textit{robustly}? We do the following
 \begin{itemize}
-    \item How do we match keypoints between images \textit{robustly}? We do the following
+    \item \textbf{Work with individual features:} We can iterate through each of the features and find their nearest neigbhbors, rejecting ambiguous matches with too many similar points.
     \begin{itemize}
-        \item \textbf{Work with individual features:} We can iterate through each of the features and find their nearest neigbhbors, rejecting ambiguous matches with too many similar points.
-        \begin{itemize}
-            \item Use 2-NN: get the \textbf{SSD} of closest and second closest neighbors, then accept if closest is significantly closer than 2nd closest. 
-        \end{itemize}
-        \item \textbf{Work with ALL the features:} After having some good feature matches, We can generate a \textit{homographies} between the two images, rejecting ones that don't have many feature matches.
+        \item Use 2-NN: get the \textbf{SSD} of closest and second closest neighbors, then accept if closest is significantly closer than 2nd closest. 
     \end{itemize}
+    \item \textbf{Work with ALL the features:} After having some good feature matches, We can generate a \textit{homographies} between the two images, rejecting ones that don't have many feature matches.
 \end{itemize}
-
 Generating homographies, as we saw earlier, can be incredibly expensive. Some key points may be false positives, and could be outliers that massively reduce the speed and quality of our answer. RANSAC is a quick way to fit data, and it generally works like this:
 \begin{enumerate}
     \item Given a dataset of size $n$, we want to generate a model $M$ that fits it well.
@@ -904,39 +1002,22 @@ Basically this means the following for the effects of the parameters on the robu
     \item \textbf{Percentage of Inliers:} This is the base of the exponential.
     \item \textbf{Number of Iterations:} This is a "good" exponential. The more we iterate, the more likely we will be to get a good set of inliers. 
 \end{itemize}
-\subsection{Histogram of Gradients}
-The \textbf{Histogram of Gradients (HoG)} is a another technique to generate feature descriptors. This technique was designed and primarily used for pedestrian detection. Instead of focusing on keypoints, HoG focuses on regions of interest. We look at global features with a sliding window at multiple sized images. Here's a step-by-step look at the algorithm.
-\begin{enumerate}
-    \item \textbf{Normalize and Gamma Color}: This is a preprocessing step, and although it has been found that this is not necessary for HoG, we should still think about it as a way to normalize all images prior to running any feature detection algorithms on them. \textit{Gamma Correction} is a way to evenly distribute the intensities along an image. We do the following: 
-    $$I[x,y] = CI[x,y]^k$$
-    Where $C$ is a constant and $k$ is the normalization exponent. We set it to $\frac{1}{2}$ to make sure intense parts arent overly intense relative to the image. After this, we \textit{normalize} the image to convert the numbers to floating point numbers between 0 and 1.  
-    \item \textbf{Calculate Gradients}: Like many of the operations before, we calculate gradient at a point using the following formula:
-    $$\nabla f(x,y) = \begin{bmatrix}
-    g_x\\g_y
-    \end{bmatrix} = \begin{bmatrix}
-    \frac{\partial f}{\partial x}\\\frac{\partial f}{\partial y}
-    \end{bmatrix} = \lim_{d\rightarrow 0}\frac{f(x+d)- f(x-d)}{2d}$$
-    Like the Harris corner detector, we use partials, meaning we want to calculate the vertical and horizontal edges. We could use \textit{sobel operators}, but instead use 1-D filter masks: $$\begin{bmatrix}
-    -1 & 0 & 1
-    \end{bmatrix}, \begin{bmatrix}
-    -1 \\ 0 \\ 1
-    \end{bmatrix}$$
-    \item \textbf{Calculate Orientations and Magnitudes}: Like many of the operations before, we calculate the magnitude ($g$) and orientation ($\theta$) of the gradients using the partial derivatives at a point. 
-    $$g = \sqrt{g_x^2 + g_y^2}, \theta = \frac{180}{\pi}(\tan_2^{-1}\bigg(\frac{g_y}{g_x}\bigg)\text{mod }\pi)$$
-    Note that instead of letting the orientation be the full $360$ degrees, the $\mod{\pi}$ limits this to angles between $0$ and $180$ degrees. This gives us \textit{unsigned} gradients, which were tested to work better.
-    \item \textbf{Create Patches and Blocks}: Remember that HoG is different in the sense that we do not find key points, rather we create features for an area. \begin{enumerate}
-        \item \textbf{Create a patch of size $64 \times 128$}. Since HoG was made to be operated on human subjects, this patch size captures a standing pedestrian at the right scale. This will ultimately be the space that the feature vector reports on.
-        \item \textbf{Divide into Blocks of $8 \times 8$-sized cells}. These are the cells that will make up the sections of the histograms we make. 
+\subsection{Summary}
+\begin{itemize}
+    \item \textbf{Projective Geometry} is a form of geometry that does not focus on the inherent distance between points, but rather, their colinearity.
+    \item \textbf{Cameras} use projections to convert coordinates in the real world to camera coordinates, then to image planes.
+    \item This works by translating and rotating the real world into the camera's coordinates, then transforming it with a homography to the image plane. 
+    \item \textbf{Homographies} are line-preserving projections from a space to itself. Answers to homographies can be roughly estimated with \textit{linear least squares}.
+    \item We can stitch images by warping matching keypoints onto each other with homographies.
+    \item \textbf{Random Sample Consensus} is a way to speed up model creation and point validation. Here's how we do it to generate homographies from feature matches:
+    \begin{enumerate}
+        \item Sample 4 random feature pairs.
+        \item Compute the homography $H$
+        \item Compute inliers
+        \item Repeat, keeping the \textit{\textbf{Largest} set of inliers}.
+        \item Re-compute least-squares homography $H$ using largest set of inliers.
     \end{enumerate}
-    \item \textbf{Create the block-cells from the blocks}. We slide a $2 \times 2$ cell sized window over our entire patch. Each one of these windows will return  a histogram of the magnitudes of gradient orientations.
-    \item \textbf{Quantize the gradient orientations of the block into a 9-binned histogram.} We choose 9 bins because they seem to work best.
-    \begin{itemize}
-        \item \textit{Quantizing} the magnitudes would mean that if the gradient was in an angle in the middle of two bin thresholds, we would split its magnitude proportionally into each of those bins based on distance. 
-        \item We also \textit{normalize} each block. 
-    \end{itemize}
-    \item \textbf{Concatenate the histograms into a feature vector.} Recall that we have the $64 \times 128$-sized patch. Dividing this into $8\times 8$ cells gives us a $8\times 16$-cell-sized patch. Then, with a $2\times2$-cell window sliding over the patch, we report $15 * 7$ windows. Each of these windows has $2*2 = 4$ cells, and the histograms of each cell have $9$ directions. This gives us a feature vector of size:
-    $$15 * 7 * 4 * 9 = 3780$$
-\end{enumerate}
+\end{itemize}
 \section{Optical Flow}
 \subsection{Definitions and Assumptions}
 Here, we move from images to videos. Since a video is a collection of adjacent images, we must be able to gleam information from it. We want to find objects in the video moving in the 3D plane. This is the idea of the \textbf{Motion Field:} a projection of 3D velocity vectors onto the 2D image plane. We can estimate this using something called the \textbf{Optical Flow} of an image, the observed 2D displacements in the intensity patterns of the image. First, let's list some assumptions:
